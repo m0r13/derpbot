@@ -1,3 +1,5 @@
+import time
+import threading
 import re
 from derpbot import util, configuration
 
@@ -144,6 +146,32 @@ class PluginManager(object):
         for channels in self._channels.values():
             for channel in channels:
                 yield channel
+
+class PollWorker(threading.Thread):
+    def __init__(self, plugin, interval):
+        threading.Thread.__init__(self)
+        
+        self.plugin = plugin
+        self.interval = interval
+    
+        self.running = True
+    
+    def stop(self):
+        self.running = False
+        self.join()
+    
+    def run(self):
+        lastpoll = 0
+        while self.running:
+            if time.time() - lastpoll >= self.interval:
+                lastpoll = time.time()
+                self.poll()
+            else:
+                time.sleep(0.5)
+    
+    def poll(self):
+        # implement this
+        pass
 
 def config(*attributes):
     def sub_generator(func):
