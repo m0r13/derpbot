@@ -205,12 +205,12 @@ class Plugin(object):
 	def disable(self):
 		pass
 		
-	def handle_message(self, chat, username, message):
+	def handle_message(self, channel, username, message):
 		pass
 	
-	def handle_commands(self, chat, username, message, args):
+	def handle_commands(self, channel, username, message, args):
 		for command in self.commands:
-			command["func"](chat, username, message, args)
+			command["func"](channel, username, message, args)
 			
 	@property
 	def commands(self):
