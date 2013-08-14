@@ -1,4 +1,5 @@
 from derpbot import plugin
+import random
 
 class FunPlugin(plugin.Plugin):
     def __init__(self, bot, config):
@@ -9,6 +10,13 @@ class FunPlugin(plugin.Plugin):
     
     def disable(self):
         pass
+    
+    def handle_message(self, channel, username, message):
+        if username == "Thor" and message.lower().startswith("derp"):
+            if random.randint(0, 10) < 2:
+                channel.send("Thor is a derp, indeed")
+            else:
+                channel.send("indeed")
     
     @plugin.command("slap .*",
                     name="slap",
