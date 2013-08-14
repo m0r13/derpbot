@@ -41,7 +41,7 @@ class ConfigFile(object):
         tree = ET.parse(self._filename).getroot()
         bot_config = tree.find("bot")
         
-        self.plugins = util.xml_readlist(bot_config.find("plugins"), "module")
+        self.plugins = util.xml_readlist(bot_config.find("plugins"), "plugin")
         self.admins = util.xml_readlist(bot_config.find("admins"), "admin")
         
         self._plugin_configs = {}

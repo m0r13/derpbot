@@ -23,36 +23,38 @@ class PluginManager(object):
 	def __init__(self, bot):
 		self._bot = bot
 		
-		self._plugin_modules = []
+		self._plugins_avail = []
 		
 		self._plugin_classes = {}
 		self._plugin_instances = {}
 		
 		self._channels = {}
 		
-	def set_plugins(self, modules):
-		self._plugin_modules = modules
+	def set_plugins(self, plugins):
+		self._plugins_avail = plugins
 		
-	def _load_plugin_module(self, name):
+	def _load_plugin_class(self, path):
+		modulename = ".".join(path.split(".")[:-1])
+		name = path.split(".")[-1]
 		try:
-			module = __import__(name)
-			for name in name.split(".")[1:]:
-				module = getattr(module, name)
+			module = __import__(modulename)
+			for m in modulename.split(".")[1:]:
+				module = getattr(module, m)
 			reload(module)
 		except Exception, e:
-			self._bot.log_exception("Unable to load plugin module '%s'!" % name)
+			self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
 			return
 		
-		check = lambda cls: cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin)
-		for attr in dir(module):
-			value = getattr(module, attr)
-			if check(value):
-				self._plugin_classes[classname(value)] = value
-		
+		cls = getattr(module, name)
+		if cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin):
+			self._plugin_classes[classname(cls)] = cls
+		else:
+			self._bot.log_error("Invalid plugin class '%s'!" % path)
+	
 	def _reload_classes(self):
 		self._plugin_classes = {}
-		for name in self._plugin_modules:
-			self._load_plugin_module(name)
+		for path in self._plugins_avail:
+			self._load_plugin_class(path)
 			
 	def _load_plugin(self, name, force=False):
 		try:

@@ -2,18 +2,18 @@
 <config>
     <bot>
         <plugins>
-            <module>derpbot.plugins.irc_bot</module>
-            <module>derpbot.plugins.admin</module>
-            <module>derpbot.plugins.command</module>
-            <module>derpbot.plugins.help</module>
-            <module>derpbot.plugins.rand</module>
-            <module>derpbot.plugins.fun</module>
-            <module>derpbot.plugins.imdb</module>
-            <module>derpbot.plugins.reddit</module>
-            <module>derpbot.plugins.minecraft</module>
-            <module>derpbot.plugins.wolframalpha</module>
+            <plugin>derpbot.plugins.irc_bot.IRCPlugin</plugin>
+            <plugin>derpbot.plugins.admin.AdminPlugin</plugin>
+            <plugin>derpbot.plugins.command.CommandPlugin</plugin>
+            <plugin>derpbot.plugins.help.HelpPlugin</plugin>
+            <plugin>derpbot.plugins.rand.RandPlugin</plugin>
+            <plugin>derpbot.plugins.fun.FunPlugin</plugin>
+            <plugin>derpbot.plugins.imdb.IMDBPlugin</plugin>
+            <plugin>derpbot.plugins.reddit.RedditPlugin</plugin>
+            <plugin>derpbot.plugins.minecraft.MCRCPlugin</plugin>
+            <plugin>derpbot.plugins.wolframalpha.WolframAlphaPlugin</plugin>
             
-            <module>derpbot.plugins.test</module>
+            <plugin>derpbot.plugins.test.TestPlugin</plugin>
         </plugins>
         
         <admins>
@@ -38,7 +38,7 @@
         </commandprefixes>
     </config>
     
-    <!--<config plugin="derpbot.plugins.wolframalpha.WolframAlphaPlugin">
+    <config plugin="derpbot.plugins.wolframalpha.WolframAlphaPlugin">
         <app-id></app-id>
-    </config>-->
+    </config>
 </config>
