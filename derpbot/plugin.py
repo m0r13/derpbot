@@ -33,9 +33,9 @@ class PluginManager(object):
 	def set_plugins(self, plugins):
 		self._plugins_avail = plugins
 		
-	def _load_plugin_class(self, path):
-		modulename = ".".join(path.split(".")[:-1])
-		name = path.split(".")[-1]
+	def _load_plugin_class(self, name):
+		modulename = ".".join(name.split(".")[:-1])
+		clsname = name.split(".")[-1]
 		try:
 			module = __import__(modulename)
 			for m in modulename.split(".")[1:]:
@@ -45,11 +45,11 @@ class PluginManager(object):
 			self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
 			return
 		
-		cls = getattr(module, name)
+		cls = getattr(module, clsname)
 		if cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin):
 			self._plugin_classes[classname(cls)] = cls
 		else:
-			self._bot.log_error("Invalid plugin class '%s'!" % path)
+			self._bot.log_error("Invalid plugin class '%s'!" % name)
 	
 	def _reload_classes(self):
 		self._plugin_classes = {}
@@ -91,13 +91,13 @@ class PluginManager(object):
 		
 	def load_plugins(self):
 		self._reload_classes()
-		for name, cls in self._plugin_classes.items():
+		for name in self._plugins_avail:
 			if self._load_plugin(name):
 				self._bot.log_info("Enabled plugin %s." % name)
 		
 	def unload_plugins(self, irc=False):
-		for name, cls in self._plugin_classes.items():
-			if cls.__module__ == "derpbot.plugins.irc_bot" and irc:
+		for name in self._plugins_avail:
+			if name == "derpbot.plugins.irc_bot.IRCPlugin" and irc:
 				self._bot.log_info("Skipping irc.")
 				continue
 			self._unload_plugin(name)
