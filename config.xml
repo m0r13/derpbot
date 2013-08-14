@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <bot>
+        <plugins>
+            <module>derpbot.plugins.irc_bot</module>
+            <module>derpbot.plugins.admin</module>
+            <module>derpbot.plugins.command</module>
+            <module>derpbot.plugins.help</module>
+            <module>derpbot.plugins.rand</module>
+            <module>derpbot.plugins.fun</module>
+            <module>derpbot.plugins.imdb</module>
+            <module>derpbot.plugins.reddit</module>
+            <module>derpbot.plugins.minecraft</module>
+            <module>derpbot.plugins.wolframalpha</module>
+            
+            <module>derpbot.plugins.test</module>
+        </plugins>
+        
+        <admins>
+            <admin>m0r13</admin>
+        </admins>
+    </bot>
+    
+    <config plugin="derpbot.plugins.irc_bot.IRCPlugin">
+        <host>irc.freenode.net</host>
+        <port>6667</port>
+        <channel>#mapcrafter</channel>
+        <nick>derpbot</nick>
+    </config>
+    
+    <config plugin="derpbot.plugins.command.CommandPlugin">
+        <botname>derpbot</botname>
+        <commandprefixes>
+            <prefix>!</prefix>
+            <prefix>{name}! </prefix>
+            <prefix>{name}: </prefix>
+            <prefix>{name}, </prefix>
+        </commandprefixes>
+    </config>
+    
+    <!--<config plugin="derpbot.plugins.wolframalpha.WolframAlphaPlugin">
+        <app-id></app-id>
+    </config>-->
+</config>
