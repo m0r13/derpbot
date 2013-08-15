@@ -147,32 +147,6 @@ class PluginManager(object):
             for channel in channels:
                 yield channel
 
-class PollWorker(threading.Thread):
-    def __init__(self, plugin, interval):
-        threading.Thread.__init__(self)
-        
-        self.plugin = plugin
-        self.interval = interval
-    
-        self.running = True
-    
-    def stop(self):
-        self.running = False
-        self.join()
-    
-    def run(self):
-        lastpoll = 0
-        while self.running:
-            if time.time() - lastpoll >= self.interval:
-                lastpoll = time.time()
-                self.poll()
-            else:
-                time.sleep(0.5)
-    
-    def poll(self):
-        # implement this
-        pass
-
 def config(*attributes):
     def sub_generator(func):
         def sub_function(self, bot, config):
@@ -266,3 +240,45 @@ class Plugin(object):
         self.bot.log_critical(message, self.__class__.__name__)
     def log_exception(self, message):
         self.bot.log_exception(message, self.__class__.__name__)
+
+class PollWorker(threading.Thread):
+    def __init__(self, interval):
+        threading.Thread.__init__(self)
+        
+        self.interval = interval
+        self.lastpoll = 0
+        self.running = True
+    
+    def stop(self):
+        self.running = False
+        self.join()
+    
+    def run(self):
+        self.lastpoll = time.time()
+        while self.running:
+            if time.time() - self.lastpoll >= self.interval:
+                self.lastpoll = time.time()
+                self.poll()
+            else:
+                time.sleep(0.5)
+    
+    def poll(self):
+        # implement this
+        pass
+    
+class PollPlugin(Plugin, PollWorker):
+    interval = 30
+    
+    def __init__(self, bot, config):
+        Plugin.__init__(self, bot, config)
+        PollWorker.__init__(self, self.interval)
+        
+    def enable(self):
+        super(PollPlugin, self).enable()
+        
+        self.start()
+        
+    def disable(self):
+        super(PollPlugin, self).disable()
+        
+        self.stop()

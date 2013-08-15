@@ -1,8 +1,9 @@
 from derpbot import plugin
+import time
 
 class TestPlugin(plugin.Plugin):
-    def __init__(self, bot, config):
-        super(TestPlugin, self).__init__(bot, config)
+    def __init__(self, *args, **kwargs):
+        super(TestPlugin, self).__init__(*args, **kwargs)
         
     def enable(self):
         pass
@@ -20,3 +21,13 @@ class TestPlugin(plugin.Plugin):
                     name="error")
     def error(self, channel, nick, match, message, args):
         raise Exception("This is an exception")
+        
+class PollTestPlugin(plugin.PollPlugin):
+    interval = 10
+    
+    def __init__(self, *args, **kwargs):
+        super(PollTestPlugin, self).__init__(*args, **kwargs)
+        
+    def poll(self):
+        for channel in self.bot.plugins.channels:
+            channel.send("It's %d and the last poll was %d." % (time.time(), self.lastpoll))
