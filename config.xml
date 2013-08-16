@@ -41,6 +41,8 @@
     
     <!-- 
     <config plugin="derpbot.plugins.github.GitHubPlugin">
+        <client-id></client-id>
+        <client-secret></client-secret>
         <feeds>
             <feed>https://api.github.com/networks/m0r13/derpbot/events</feed>
         </feeds>

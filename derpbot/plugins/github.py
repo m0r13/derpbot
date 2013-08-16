@@ -2,8 +2,6 @@ from derpbot import plugin, util
 import urllib2
 import json
 
-import datetime
-
 # from hesperus chat bot, see https://github.com/agrif/hesperus
 # pretty string trunc function
 # <http://kelvinwong.ca/2007/06/22/a-nicer-python-string-truncation-function/>
@@ -44,12 +42,20 @@ def format_ref(ref):
 
 class GitHubPlugin(plugin.PollPlugin):
     interval = 60
+    interval_auth = 30
     
     @plugin.config(
-        ("feeds", util.XMLList("feed"), [])
+        ("client-id", str, ""),
+        ("client-secret", str, ""),
+        ("feeds", util.XMLList("feed"), []),
     )
     def __init__(self, *args, **kwargs):
         super(GitHubPlugin, self).__init__(*args, **kwargs)
+        
+        self.auth = ""
+        if self.config["client-id"]:
+            self.auth = "?client_id=%s&client_secret=%s" % (self.config["client-id"], self.config["client-secret"])
+            self.set_interval(self.interval_auth)
     
     def format_event(self, event):
         if "payload" not in event:
@@ -59,7 +65,7 @@ class GitHubPlugin(plugin.PollPlugin):
         msg = None
         args = dict()
         if event["type"] == "PushEvent":
-            extra = json.load(urllib2.urlopen(payload["commits"][-1]["url"]))
+            extra = json.load(urllib2.urlopen(urllib2.Request(payload["commits"][-1]["url"] + self.auth, None, {"User-Agent" : "derpbot"})))
             msg = "{user} pushed {count} commit{plural} to {ref} on {repo}"
             args = dict(
                 user=event["actor"]["login"],
@@ -101,9 +107,16 @@ class GitHubPlugin(plugin.PollPlugin):
     def poll(self):
         for feed in self.config["feeds"]:
             try:
-                data = json.load(urllib2.urlopen(feed))
-            except urllib2.URLError:
+                req = urllib2.Request(feed + self.auth, None, {"User-Agent" : "derpbot"})
+                data = json.load(urllib2.urlopen(req))
+            except urllib2.HTTPError:
+                self.log_exception("HTTP Error")
                 continue
+            
+            if "message" in data and "API rate limit exceeded" in data["message"]:
+                self.log_critical("GitHub api rate limit exceeded!")
+                return
+            
             for event in data:
                 created = util.utc_to_timestamp(event["created_at"])
                 if created < self.lastpoll:
