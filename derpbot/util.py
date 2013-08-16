@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
-import json
-import urllib2
+from datetime import datetime
+import calendar
+from derpbot.short_url import short_url
 
 def xml_readlist(node, tagname):
     if not isinstance(node, ET.Element):
@@ -26,21 +27,6 @@ class XMLList(object):
         
     def __call__(self, node):
         return xml_readlist(node, self._tagname)
-
-def short_url(url):
-    if not url:
-        return None
     
-    apiurl = "https://www.googleapis.com/urlshortener/v1/url"
-    data = json.dumps({"longUrl" : url})
-    headers = {"Content-Type" : "application/json"}
-    r = urllib2.Request(apiurl, data, headers)
-    
-    try:
-        retdata = urllib2.urlopen(r).read()
-        retdata = json.loads(retdata)
-        return retdata.get("id", url)
-    except urllib2.URLError:
-        return url
-    except ValueError:
-        return url
+def utc_to_timestamp(utcstr):
+    return calendar.timegm(datetime.strptime(utcstr, "%Y-%m-%dT%H:%M:%SZ").utctimetuple())
