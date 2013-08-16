@@ -248,6 +248,9 @@ class PollWorker(threading.Thread):
         self.interval = interval
         self.lastpoll = 0
         self.running = True
+        
+    def set_interval(self, interval):
+        self.interval = interval
     
     def stop(self):
         self.running = False
