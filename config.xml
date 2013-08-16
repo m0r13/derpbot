@@ -3,17 +3,18 @@
     <bot>
         <plugins>
             <plugin>derpbot.plugins.irc_bot.IRCPlugin</plugin>
+            
             <plugin>derpbot.plugins.admin.AdminPlugin</plugin>
             <plugin>derpbot.plugins.command.CommandPlugin</plugin>
-            <plugin>derpbot.plugins.help.HelpPlugin</plugin>
-            <plugin>derpbot.plugins.rand.RandPlugin</plugin>
             <plugin>derpbot.plugins.fun.FunPlugin</plugin>
+            <plugin>derpbot.plugins.github.GitHubPlugin</plugin>
+            <plugin>derpbot.plugins.help.HelpPlugin</plugin>
             <plugin>derpbot.plugins.imdb.IMDBPlugin</plugin>
-            <plugin>derpbot.plugins.reddit.RedditPlugin</plugin>
             <plugin>derpbot.plugins.minecraft.MCRCPlugin</plugin>
-            <plugin>derpbot.plugins.wolframalpha.WolframAlphaPlugin</plugin>
-            
+            <plugin>derpbot.plugins.rand.RandPlugin</plugin>
+            <plugin>derpbot.plugins.reddit.RedditPlugin</plugin>
             <plugin>derpbot.plugins.test.TestPlugin</plugin>
+            <plugin>derpbot.plugins.wolframalpha.WolframAlphaPlugin</plugin>
         </plugins>
         
         <admins>
@@ -38,7 +39,17 @@
         </commandprefixes>
     </config>
     
+    <!-- 
+    <config plugin="derpbot.plugins.github.GitHubPlugin">
+        <feeds>
+            <feed>https://api.github.com/networks/m0r13/derpbot/events</feed>
+        </feeds>
+    </config>
+    -->
+    
+    <!--
     <config plugin="derpbot.plugins.wolframalpha.WolframAlphaPlugin">
         <app-id></app-id>
     </config>
+    -->
 </config>
