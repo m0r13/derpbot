@@ -257,8 +257,9 @@ class PollWorker(threading.Thread):
         self.lastpoll = time.time()
         while self.running:
             if time.time() - self.lastpoll >= self.interval:
-                self.lastpoll = time.time()
+                start = time.time()
                 self.poll()
+                self.lastpoll = start
             else:
                 time.sleep(0.5)
     
