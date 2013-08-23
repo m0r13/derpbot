@@ -36,8 +36,8 @@ def trunc(s, min_pos=0, max_pos=75, ellipsis=True):
         return s[0:end] + suffix
 
 def format_ref(ref):
-    if ref.startswith("refs/heads/master"):
-        return ref.replace("refs/heads/", "")
+    if ref.startswith("refs/heads/"):
+        return ref.split("/", 2)[2]
     return ref
 
 class GitHubPlugin(plugin.PollPlugin):
