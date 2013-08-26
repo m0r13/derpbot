@@ -109,8 +109,8 @@ class GitHubPlugin(plugin.PollPlugin):
             try:
                 req = urllib2.Request(feed + self.auth, None, {"User-Agent" : "derpbot"})
                 data = json.load(urllib2.urlopen(req))
-            except urllib2.HTTPError:
-                self.log_exception("HTTP Error")
+            except Exception:
+                self.log_exception("An error happened")
                 continue
             
             if "message" in data and "API rate limit exceeded" in data["message"]:
