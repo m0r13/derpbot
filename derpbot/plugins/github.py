@@ -88,7 +88,7 @@ class GitHubPlugin(plugin.PollPlugin):
                 number=payload["issue"]["number"],
                 title=payload["issue"]["title"],
                 repo=event["repo"]["name"],
-                url=util.short_url(payload["issue"]["url"], provider="git.io"),
+                url=util.short_url(payload["issue"]["html_url"], provider="git.io"),
             )
         elif event["type"] == "IssueCommentEvent":
             msg = "{user} commented on issue #{number} \"{title}\" on {repo}: \"{message}\". ({url})"
