@@ -30,3 +30,36 @@ class XMLList(object):
     
 def utc_to_timestamp(utcstr):
     return calendar.timegm(datetime.strptime(utcstr, "%Y-%m-%dT%H:%M:%SZ").utctimetuple())
+
+# from hesperus chat bot, see https://github.com/agrif/hesperus
+# pretty string trunc function
+# <http://kelvinwong.ca/2007/06/22/a-nicer-python-string-truncation-function/>
+# from Kelvin Wong, under the license at http://www.python.org/psf/license/
+def trunc(s, min_pos=0, max_pos=75, ellipsis=True):
+    # Sentinel value -1 returned by String function rfind
+    NOT_FOUND = -1
+    # Error message for max smaller than min positional error
+    ERR_MAXMIN = "Minimum position cannot be greater than maximum position"
+    
+    # If the minimum position value is greater than max, throw an exception
+    if max_pos < min_pos:
+        raise ValueError(ERR_MAXMIN)
+    # Change the ellipsis characters here if you want a true ellipsis
+    if ellipsis:
+        suffix = '...'
+    else:
+        suffix = ''
+    # Case 1: Return string if it is shorter (or equal to) than the limit
+    length = len(s)
+    if length <= max_pos:
+        return s + suffix
+    else:
+        # Case 2: Return it to nearest period if possible
+        try:
+            end = s.rindex('.',min_pos,max_pos)
+        except ValueError:
+            # Case 3: Return string to nearest space
+            end = s.rfind(' ',min_pos,max_pos)
+            if end == NOT_FOUND:
+                end = max_pos
+        return s[0:end] + suffix
