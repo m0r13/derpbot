@@ -76,7 +76,7 @@ class GitHubPlugin(plugin.PollPlugin):
             try:
                 req = urllib2.Request(feed + self.auth, None, {"User-Agent" : "derpbot"})
                 data = json.load(urllib2.urlopen(req))
-            except Exception:
+            except:
                 self.log_exception("An error happened")
                 continue
             
