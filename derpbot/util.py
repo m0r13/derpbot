@@ -31,6 +31,9 @@ class XMLList(object):
 def utc_to_timestamp(utcstr):
     return calendar.timegm(datetime.strptime(utcstr, "%Y-%m-%dT%H:%M:%SZ").utctimetuple())
 
+def format_exception(exception):
+    return "%s(\"%s\")" % (exception.__class__.__name__, str(exception))
+
 # from hesperus chat bot, see https://github.com/agrif/hesperus
 # pretty string trunc function
 # <http://kelvinwong.ca/2007/06/22/a-nicer-python-string-truncation-function/>

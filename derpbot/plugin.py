@@ -54,7 +54,8 @@ class PluginManager(object):
             plugin.enable()
             self._plugin_instances[name] = plugin
         except Exception, e:
-            self._bot.log_exception("Unable to load plugin %s: %s" % (name, e))
+            self._bot.log_plugin_error("Unable to load plugin %s: %s" % (name, util.format_exception(e)))
+            #self._bot.log_exception("Unable to load plugin %s: %s" % (name, e))
             return False
         return True
     
@@ -65,17 +66,16 @@ class PluginManager(object):
                 self._bot.log_info("Enabled plugin %s." % name)
     
     def unload_plugin(self, name):
-        try:
-            if name not in self._plugin_classes or name not in self._plugin_instances:
-                return
-                
-            plugin = self._plugin_instances[name]
-            plugin.disable()
-            del self._plugin_instances[name]
-            del self._channels[name]
-        except Exception, e:
-            self._bot.log_exception("Unable to unload plugin %s: %s" % (name, e))
+        if name not in self._plugin_classes or name not in self._plugin_instances:
             return False
+        plugin = self._plugin_instances[name]
+        try:
+            plugin.disable()
+        except Exception, e:
+            self._bot.log_plugin_error("An error happened while unloading plugin %s, plugin was force-unloaded: %s" % (name, util.format_exception(e)))
+            #self._bot.log_exception("Unable to unload plugin %s: %s" % (name, e))
+        del self._plugin_instances[name]
+        del self._channels[name]
         return True
     
     def unload_plugins(self, irc=False):
@@ -99,14 +99,16 @@ class PluginManager(object):
                 module = getattr(module, m)
             reload(module)
         except Exception, e:
-            self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
+            self._bot.log_plugin_error("Unable to load plugin module '%s': %s" % (modulename, util.format_exception(e)))
+            #self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
             return
         
         cls = getattr(module, clsname)
         if cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin):
             return cls
         else:
-            self._bot.log_error("Invalid plugin class '%s'!" % path)
+            self._bot.log_plugin_error("Invalid plugin class '%s'!" % path)
+            #self._bot.log_error("Invalid plugin class '%s'!" % path)
     
     def _reload_classes(self):
         self._plugin_classes.clear()
@@ -116,22 +118,24 @@ class PluginManager(object):
                 self._plugin_classes[name] = cls
         
     def handle_message(self, chat, username, message):
-        for plugin in self._plugin_instances.values():
+        for name, plugin in self._plugin_instances.items():
             try:
                 if plugin.handle_message(chat, username, message):
                     return
             except Exception, e:
-                chat.sendto(username, "An error happened while handling your message: %s" % e)
-                self._bot.log_exception("An error happened while handling a message of %s: %s" % (username, message))
+                chat.sendto(username, "An error happened while handling your message.")
+                self._bot.log_plugin_error(util.format_exception(e), name)
+                #self._bot.log_exception("An error happened while handling a message of %s: %s" % (username, message))
             
     def handle_command(self, chat, username, message, args):
-        for plugin in self._plugin_instances.values():
+        for name, plugin in self._plugin_instances.items():
             try:
                 if plugin.handle_commands(chat, username, message, args):
                     return
             except Exception, e:
-                chat.sendto(username, "An error happened while handling your command: %s" % e)
-                self._bot.log_exception("An error happened while handling a command of %s: %s" % (username, message))
+                chat.sendto(username, "An error happened while handling your command")
+                self._bot.log_plugin_error(util.format_exception(e), name)
+                #self._bot.log_exception("An error happened while handling a command of %s: %s" % (username, message))
             
     @property
     def commands(self):

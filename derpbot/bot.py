@@ -51,3 +51,11 @@ class Bot:
     def log_exception(self, message, plugin=""):
         self._log.exception(message, extra=dict(plugin=pluginprefix(plugin)))
     
+    def log_plugin_error(self, message, plugin=""):
+        self.log_exception(message, plugin)
+        
+        if plugin:
+            message = plugin + " gone wild: " + message
+        for channel in self.plugins.channels:
+            channel.send("halp! " + message)
+    
