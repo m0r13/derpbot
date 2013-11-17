@@ -26,13 +26,30 @@ class IRCChannel(plugin.Channel):
 		self._ircconn = ircconn
 		self._channel = channel
 		
+		self._connected = False
+		self._not_connected_buffer = []
+		
 		self.name = channel
 	
 	def send(self, message):
-		self._ircconn.privmsg(self._channel, message)
+		if not self._connected:
+			self._not_connected_buffer.append(("privmsg", message))
+		else:
+			self._ircconn.privmsg(self._channel, message)
 		
 	def sendpriv(self, nick, message):
-		self._ircconn.notice(nick, message)
+		if not self._connected:
+			self._not_connected_buffer.append(("notice", message))
+		else:
+			self._ircconn.notice(nick, message)
+		
+	def set_connected(self):
+		self._connected = True
+		for t, message in self._not_connected_buffer:
+			if t == "privmsg":
+				self.send(message)
+			elif t == "notice":
+				self.send(message)
 
 class IRCPrivateChannel(plugin.Channel):
 	private = True
@@ -71,11 +88,15 @@ class IRCPlugin(plugin.Plugin, irc.client.SimpleIRCClient):
 		config = self.config
 		host, port = config["host"], config["port"]
 		channel, nick = config["channel"], config["nick"]
+		
 		self.log_info("Connecting to %s:%d in %s as %s." % (host, port, channel, nick))
 		try:
 			self.connect(host, port, nick)
 		except irc.client.ServerConnectionError, x:
 			self.log_exception("Unable to connect to the IRC server!")
+		
+		self._channel = IRCChannel(self.connection, self.config["channel"])
+		self.bot.plugins.register_channel(self, self._channel)
 		
 		self._thread = IRCThread(self)
 		self._thread.start()
@@ -94,8 +115,7 @@ class IRCPlugin(plugin.Plugin, irc.client.SimpleIRCClient):
 	def on_welcome(self, c, e):
 		c.join(self.config["channel"])
 		
-		self._channel = IRCChannel(self.connection, self.config["channel"])
-		self.bot.plugins.register_channel(self, self._channel)
+		self._channel.set_connected()
 
 	def on_privmsg(self, c, e):
 		username = e.source.nick

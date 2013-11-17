@@ -48,11 +48,11 @@ class PluginManager(object):
                 self.unload_plugin(name)
             elif name in self._plugin_instances:
                 return False
+            self._channels[name] = []
             cls = self._plugin_classes[name]
             plugin = cls(self._bot, self._bot.get_plugin_config(name))
             plugin.enable()
             self._plugin_instances[name] = plugin
-            self._channels[name] = []
         except Exception, e:
             self._bot.log_exception("Unable to load plugin %s: %s" % (name, e))
             return False
