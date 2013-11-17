@@ -26,10 +26,16 @@ class AdminPlugin(plugin.Plugin):
                     usage="plugins",
                     require_admin=True)
     def plugins(self, channel, nick, match, message, args):
-        plugins = self.bot.plugins
-        channel.sendpriv(nick, "Enabled plugins:")
-        for plugin in plugins._plugin_instances.keys():
-            channel.sendpriv(nick, "- %s" % plugin)
+        plugin_mgr = self.bot.plugins
+        
+        enabled = plugin_mgr._plugin_instances.keys()
+        channel.sendpriv(nick, "Enabled plugins: " + ", ".join(enabled))
+        
+        not_enabled = []
+        for name in plugin_mgr._plugins_avail.values():
+            if name not in enabled:
+                not_enabled.append(name)
+        channel.sendpriv(nick, "Not enabled plugins: " + ", ".join(not_enabled))
             
     @plugin.command("say (.*)", 
                     name="say", 
