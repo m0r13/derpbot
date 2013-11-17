@@ -133,7 +133,7 @@ class PluginManager(object):
                 if plugin.handle_commands(chat, username, message, args):
                     return
             except Exception, e:
-                chat.sendto(username, "An error happened while handling your command")
+                chat.sendto(username, "An error happened while handling your command.")
                 self._bot.log_plugin_error(util.format_exception(e), name)
                 #self._bot.log_exception("An error happened while handling a command of %s: %s" % (username, message))
             
