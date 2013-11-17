@@ -16,6 +16,7 @@
             <plugin>derpbot.plugins.reddit.RedditPlugin</plugin>
             <plugin>derpbot.plugins.test.TestPlugin</plugin>
             <plugin>derpbot.plugins.wolframalpha.WolframAlphaPlugin</plugin>
+            <plugin>derpbot.plugins.mapcrafter.MapcrafterPlugin</plugin>
         </plugins>
         
         <admins>
