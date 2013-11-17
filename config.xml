@@ -4,11 +4,12 @@
         <plugins>
             <plugin>derpbot.plugins.irc_bot.IRCPlugin</plugin>
             
-            <plugin>derpbot.plugins.admin.AdminPlugin</plugin>
             <plugin>derpbot.plugins.command.CommandPlugin</plugin>
+            <plugin>derpbot.plugins.admin.AdminPlugin</plugin>
+            <plugin>derpbot.plugins.help.HelpPlugin</plugin>
+            
             <plugin>derpbot.plugins.fun.FunPlugin</plugin>
             <plugin>derpbot.plugins.github.GitHubPlugin</plugin>
-            <plugin>derpbot.plugins.help.HelpPlugin</plugin>
             <plugin>derpbot.plugins.imdb.IMDBPlugin</plugin>
             <plugin>derpbot.plugins.minecraft.MCRCPlugin</plugin>
             <plugin>derpbot.plugins.rand.RandPlugin</plugin>
@@ -22,15 +23,15 @@
         </admins>
     </bot>
     
-    <config plugin="derpbot.plugins.irc_bot.IRCPlugin">
+    <config plugin="IRCPlugin">
         <host>irc.freenode.net</host>
         <port>6667</port>
-        <channel>#mapcrafter</channel>
-        <nick>derpbot</nick>
+        <channel>#mapcrafter2</channel>
+        <nick>derpbot2</nick>
     </config>
     
-    <config plugin="derpbot.plugins.command.CommandPlugin">
-        <botname>derpbot</botname>
+    <config plugin="CommandPlugin">
+        <botname>derpbot2</botname>
         <commandprefixes>
             <prefix>!</prefix>
             <prefix>{name}! </prefix>
@@ -40,7 +41,7 @@
     </config>
     
     <!-- 
-    <config plugin="derpbot.plugins.github.GitHubPlugin">
+    <config plugin="GitHubPlugin">
         <client-id></client-id>
         <client-secret></client-secret>
         <feeds>
@@ -50,7 +51,7 @@
     -->
     
     <!--
-    <config plugin="derpbot.plugins.wolframalpha.WolframAlphaPlugin">
+    <config plugin="WolframAlphaPlugin">
         <app-id></app-id>
     </config>
     -->

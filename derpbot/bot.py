@@ -20,7 +20,7 @@ class Bot:
         return self._config.get_plugin_config(name)
         
     def start(self):
-        self.plugins.set_plugins(self._config.plugins)
+        self.plugins.set_plugins_avail(self._config.plugins)
         self.plugins.load_plugins()
         
     def stop(self):
@@ -28,7 +28,7 @@ class Bot:
         
     def reload(self):
         self._config.reload()
-        self.plugins.set_plugins(self._config.plugins)
+        self.plugins.set_plugins_avail(self._config.plugins)
         self.plugins.reload_plugins()
         
     def handle_message(self, chat, username, message):

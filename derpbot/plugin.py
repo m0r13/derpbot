@@ -1,6 +1,7 @@
 import time
 import threading
 import re
+from collections import OrderedDict
 from derpbot import util, configuration
 
 class Channel(object):
@@ -25,46 +26,26 @@ class PluginManager(object):
     def __init__(self, bot):
         self._bot = bot
         
-        self._plugins_avail = []
+        self._plugins_avail = OrderedDict()
         
-        self._plugin_classes = {}
-        self._plugin_instances = {}
+        self._plugin_classes = OrderedDict()
+        self._plugin_instances = OrderedDict()
         
-        self._channels = {}
+        self._channels = OrderedDict()
         
-    def set_plugins(self, plugins):
-        self._plugins_avail = plugins
-        
-    def _load_plugin_class(self, name):
-        modulename = ".".join(name.split(".")[:-1])
-        clsname = name.split(".")[-1]
-        try:
-            module = __import__(modulename)
-            for m in modulename.split(".")[1:]:
-                module = getattr(module, m)
-            reload(module)
-        except Exception, e:
-            self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
-            return
-        
-        cls = getattr(module, clsname)
-        if cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin):
-            self._plugin_classes[classname(cls)] = cls
-        else:
-            self._bot.log_error("Invalid plugin class '%s'!" % name)
+    def set_plugins_avail(self, plugins):
+        self._plugins_avail.clear()
+        for path in plugins:
+            name = path.split(".")[-1]
+            self._plugins_avail[path] = name
     
-    def _reload_classes(self):
-        self._plugin_classes = {}
-        for path in self._plugins_avail:
-            self._load_plugin_class(path)
-            
-    def _load_plugin(self, name, force=False):
+    def load_plugin(self, name, force=False):
         try:
             if name not in self._plugin_classes:
                 return False
                 
             if force and name in self._plugin_instances:
-                self._unload_plugin(name)
+                self.unload_plugin(name)
             elif name in self._plugin_instances:
                 return False
             cls = self._plugin_classes[name]
@@ -76,8 +57,14 @@ class PluginManager(object):
             self._bot.log_exception("Unable to load plugin %s: %s" % (name, e))
             return False
         return True
-            
-    def _unload_plugin(self, name):
+    
+    def load_plugins(self):
+        self._reload_classes()
+        for name in self._plugins_avail.values():
+            if self.load_plugin(name):
+                self._bot.log_info("Enabled plugin %s." % name)
+    
+    def unload_plugin(self, name):
         try:
             if name not in self._plugin_classes or name not in self._plugin_instances:
                 return
@@ -90,24 +77,43 @@ class PluginManager(object):
             self._bot.log_exception("Unable to unload plugin %s: %s" % (name, e))
             return False
         return True
-        
-    def load_plugins(self):
-        self._reload_classes()
-        for name in self._plugins_avail:
-            if self._load_plugin(name):
-                self._bot.log_info("Enabled plugin %s." % name)
-        
+    
     def unload_plugins(self, irc=False):
-        for name in self._plugins_avail:
-            if name == "derpbot.plugins.irc_bot.IRCPlugin" and irc:
+        for path, name in self._plugins_avail.items():
+            if path == "derpbot.plugins.irc_bot.IRCPlugin" and irc:
                 self._bot.log_info("Skipping irc.")
                 continue
-            self._unload_plugin(name)
+            self.unload_plugin(name)
             self._bot.log_info("Disabled plugin %s." % name)
             
     def reload_plugins(self):
         self.unload_plugins(True)
         self.load_plugins()
+        
+    def _load_plugin_class(self, path):
+        modulename = ".".join(path.split(".")[:-1])
+        clsname = path.split(".")[-1]
+        try:
+            module = __import__(modulename)
+            for m in modulename.split(".")[1:]:
+                module = getattr(module, m)
+            reload(module)
+        except Exception, e:
+            self._bot.log_exception("Unable to load plugin module '%s'!" % modulename)
+            return
+        
+        cls = getattr(module, clsname)
+        if cls != Plugin and isinstance(cls, type) and issubclass(cls, Plugin):
+            return cls
+        else:
+            self._bot.log_error("Invalid plugin class '%s'!" % path)
+    
+    def _reload_classes(self):
+        self._plugin_classes.clear()
+        for path, name in self._plugins_avail.items():
+            cls = self._load_plugin_class(path)
+            if cls != None:
+                self._plugin_classes[name] = cls
         
     def handle_message(self, chat, username, message):
         for plugin in self._plugin_instances.values():
@@ -136,9 +142,9 @@ class PluginManager(object):
         return commands
     
     def register_channel(self, plugin, channel):
-        name = classname(plugin.__class__)
+        name = plugin.__class__.__name__
         if name not in self._channels:
-            raise Exception("Invalid plugin!")
+            raise Exception("Invalid plugin %s!" % name)
         self._channels[name].append(channel)
     
     @property
