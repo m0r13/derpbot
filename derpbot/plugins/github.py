@@ -2,42 +2,9 @@ from derpbot import plugin, util
 import urllib2
 import json
 
-# from hesperus chat bot, see https://github.com/agrif/hesperus
-# pretty string trunc function
-# <http://kelvinwong.ca/2007/06/22/a-nicer-python-string-truncation-function/>
-# from Kelvin Wong, under the license at http://www.python.org/psf/license/
-def trunc(s, min_pos=0, max_pos=75, ellipsis=True):
-    # Sentinel value -1 returned by String function rfind
-    NOT_FOUND = -1
-    # Error message for max smaller than min positional error
-    ERR_MAXMIN = "Minimum position cannot be greater than maximum position"
-    
-    # If the minimum position value is greater than max, throw an exception
-    if max_pos < min_pos:
-        raise ValueError(ERR_MAXMIN)
-    # Change the ellipsis characters here if you want a true ellipsis
-    if ellipsis:
-        suffix = '...'
-    else:
-        suffix = ''
-    # Case 1: Return string if it is shorter (or equal to) than the limit
-    length = len(s)
-    if length <= max_pos:
-        return s + suffix
-    else:
-        # Case 2: Return it to nearest period if possible
-        try:
-            end = s.rindex('.',min_pos,max_pos)
-        except ValueError:
-            # Case 3: Return string to nearest space
-            end = s.rfind(' ',min_pos,max_pos)
-            if end == NOT_FOUND:
-                end = max_pos
-        return s[0:end] + suffix
-
 def format_ref(ref):
-    if ref.startswith("refs/heads/master"):
-        return ref.replace("refs/heads/", "")
+    if ref.startswith("refs/heads/"):
+        return ref.split("/", 2)[2]
     return ref
 
 class GitHubPlugin(plugin.PollPlugin):
@@ -73,7 +40,7 @@ class GitHubPlugin(plugin.PollPlugin):
                 plural="s",
                 ref=format_ref(payload["ref"]),
                 repo=event["repo"]["name"],
-                message=trunc(payload["commits"][-1]["message"], 0, 50),
+                message=util.trunc(payload["commits"][-1]["message"], 0, 50),
                 url=util.short_url(extra["html_url"], provider="git.io")
             )
             if len(payload["commits"]) == 1:
@@ -88,7 +55,7 @@ class GitHubPlugin(plugin.PollPlugin):
                 number=payload["issue"]["number"],
                 title=payload["issue"]["title"],
                 repo=event["repo"]["name"],
-                url=util.short_url(payload["issue"]["url"], provider="git.io"),
+                url=util.short_url(payload["issue"]["html_url"], provider="git.io"),
             )
         elif event["type"] == "IssueCommentEvent":
             msg = "{user} commented on issue #{number} \"{title}\" on {repo}: \"{message}\". ({url})"
@@ -97,7 +64,7 @@ class GitHubPlugin(plugin.PollPlugin):
                 number=payload["issue"]["number"],
                 title=payload["issue"]["title"],
                 repo=event["repo"]["name"],
-                message=trunc(payload["comment"]["body"], 0, 50),
+                message=util.trunc(payload["comment"]["body"], 0, 50),
                 url=util.short_url(payload["comment"]["html_url"], provider="git.io"),
             )
         if msg is not None:
@@ -109,8 +76,8 @@ class GitHubPlugin(plugin.PollPlugin):
             try:
                 req = urllib2.Request(feed + self.auth, None, {"User-Agent" : "derpbot"})
                 data = json.load(urllib2.urlopen(req))
-            except urllib2.HTTPError:
-                self.log_exception("HTTP Error")
+            except:
+                self.log_exception("An error happened")
                 continue
             
             if "message" in data and "API rate limit exceeded" in data["message"]:
