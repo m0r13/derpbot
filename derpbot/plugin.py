@@ -252,12 +252,14 @@ class Plugin(object):
         self.bot.log_exception(message, self.__class__.__name__)
 
 class PollWorker(threading.Thread):
-    def __init__(self, interval):
+    def __init__(self, interval, errhandler=lambda e: None):
         threading.Thread.__init__(self)
         
         self.interval = interval
         self.lastpoll = 0
         self.running = True
+        
+        self._errhandler = errhandler
         
     def set_interval(self, interval):
         self.interval = interval
@@ -271,7 +273,10 @@ class PollWorker(threading.Thread):
         while self.running:
             if time.time() - self.lastpoll >= self.interval:
                 start = time.time()
-                self.poll()
+                try:
+                    self.poll()
+                except Exception, e:
+                    self._errhandler(e)
                 self.lastpoll = start
             else:
                 time.sleep(0.5)
@@ -285,7 +290,9 @@ class PollPlugin(Plugin, PollWorker):
     
     def __init__(self, bot, config):
         Plugin.__init__(self, bot, config)
-        PollWorker.__init__(self, self.interval)
+        PollWorker.__init__(self, self.interval, self._handle_exception)
+        
+        self._bot = bot
         
     def enable(self):
         super(PollPlugin, self).enable()
@@ -296,3 +303,6 @@ class PollPlugin(Plugin, PollWorker):
         super(PollPlugin, self).disable()
         
         self.stop()
+    
+    def _handle_exception(self, exception):
+        self._bot.log_plugin_error(util.format_exception(exception), self.__class__.__name__)
