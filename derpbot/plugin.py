@@ -173,9 +173,6 @@ def command(regex, regexflags=0,
         regex += "$"
     cregex = re.compile(regex, regexflags)
     
-    if name == "":
-        name = regex
-    
     def sub_generator(func):
         def sub_function(self, channel, nick, message, args):
             match = cregex.match(message)
@@ -237,7 +234,7 @@ class Plugin(object):
                 "usage" : func._command_usage,
                 "desc" : func._command_desc,
                 "func" : func,
-                "plugin" : classname(self.__class__),
+                "plugin" : self.__class__.__name__,
             }
             
     def log_info(self, message):

@@ -18,6 +18,7 @@ class HelpPlugin(plugin.Plugin):
         plugins = self.bot.plugins
         if len(args) == 1:
             commands = map(lambda command: command["name"], plugins.commands)
+            commands = filter(lambda name: name, commands)
             commands.sort()
             
             channel.sendpriv(nick, "Commands: %s" % ", ".join(commands))
