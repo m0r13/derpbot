@@ -51,7 +51,7 @@ def alpha(s, alpha_app_id):
 
 class WolframAlphaPlugin(plugin.Plugin):
     
-    @plugin.config(("app-id", str))
+    @plugin.config(("app-id", str, None))
     def __init__(self, bot, config):
         super(WolframAlphaPlugin, self).__init__(bot, config)
         
@@ -68,6 +68,10 @@ class WolframAlphaPlugin(plugin.Plugin):
                    usage="(=|wolframalpha|wa|alpha) <query>", 
                    desc="Queries Wolfram Alpha.")
     def wolframalpha(self, channel, nick, match, message, args):
+        if self.app_id is None:
+            channel.sendto(nick, "Sorry, I do not have an API Key :(")
+            return
+        
         ret = alpha(match.group(2), self.app_id)
         if not ret["success"]:
             channel.sendto(nick, "Wolfram Alpha is confused: %s" % util.short_url(ret["web"]))
