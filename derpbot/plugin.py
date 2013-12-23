@@ -79,8 +79,8 @@ class PluginManager(object):
         return True
     
     def unload_plugins(self, irc=False):
-        for path, name in self._plugins_avail.items():
-            if path == "derpbot.plugins.irc_bot.IRCPlugin" and irc:
+        for name in self._plugin_classes.keys():
+            if name == "IRCPlugin" and irc:
                 self._bot.log_info("Skipping irc.")
                 continue
             self.unload_plugin(name)
